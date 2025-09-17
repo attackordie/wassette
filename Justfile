@@ -67,37 +67,144 @@ docs-serve:
 docs-watch:
     cd docs && mdbook serve
 
-# CI Docker commands - automatically handle user mapping to prevent permission issues
-ci-local:
-    docker build \
-        --build-arg USER_ID=$(id -u) \
-        --build-arg GROUP_ID=$(id -g) \
-        -f Dockerfile.ci \
-        --target ci-test \
-        -t wassette-ci-local .
-    docker run --rm \
-        -v $(PWD):/workspace \
-        -w /workspace \
-        -e GITHUB_TOKEN \
-        wassette-ci-local just ci-build-test
+# Development Environment Commands
 
-ci-build-test:
-    just build-test-components
-    cargo build --workspace
-    cargo test --workspace -- --nocapture
-    cargo test --doc --workspace -- --nocapture
+# Show available development commands
+dev-help:
+    @echo "🚀 Wassette Development Commands"
+    @echo ""
+    @echo "📋 Setup:"
+    @echo "  just dev-check       - Check development prerequisites"
+    @echo "  just rust-setup      - Set up Rust development environment"
+    @echo "  just act-install     - Install act tool for local CI"
+    @echo ""
+    @echo "🧪 Local CI Testing (matches GitHub exactly):"
+    @echo "  just act-lint        - Run linting checks"
+    @echo "  just act-build       - Run build and tests"
+    @echo "  just act-security    - Run security audits"
+    @echo "  just act-rust-all    - Run all Rust workflow jobs"
+    @echo ""
+    @echo "⚡ Quick Development:"
+    @echo "  just test            - Run core tests (fast)"
+    @echo "  just build           - Build project"
+    @echo "  just clean           - Clean build artifacts"
+    @echo ""
+    @echo "🔧 Utilities:"
+    @echo "  just act-clean       - Clean up act containers"
+    @echo "  just dev-help        - Show this help"
 
-ci-build-test-ghcr:
-    just build-test-components
-    cargo build --workspace
-    cargo test --workspace -- --nocapture --include-ignored
-    cargo test --doc --workspace -- --nocapture
+# Check if development prerequisites are installed
+dev-check:
+    @echo "🔍 Checking development prerequisites..."
+    @command -v act >/dev/null 2>&1 || (echo "❌ act not installed. Run 'just act-install'" && exit 1)
+    @command -v docker >/dev/null 2>&1 || (echo "❌ Docker not installed" && exit 1)
+    @command -v cargo >/dev/null 2>&1 || (echo "❌ Rust/Cargo not installed" && exit 1)
+    @rustup target list --installed | grep -q wasm32-wasip2 || (echo "⚠️  wasm32-wasip2 target not installed. Run: rustup target add wasm32-wasip2" && exit 1)
+    @echo "✅ All prerequisites are installed!"
 
-ci-cache-info:
-    docker system df
-    docker images wassette-ci-*
+# Set up Rust development environment
+rust-setup:
+    @echo "🦀 Setting up Rust development environment..."
+    rustup toolchain install nightly --component rustfmt
+    rustup target add wasm32-wasip2
+    cargo install cargo-machete cargo-audit cargo-deny typos-cli
+    @echo "✅ Rust development environment ready!"
 
-ci-clean:
-    docker rmi $(docker images -q wassette-ci-* 2>/dev/null) 2>/dev/null || true
-    docker builder prune -f
+# Act commands - run GitHub CI locally using act (github.com/nektos/act)
+# Each command corresponds to a specific job in .github/workflows/rust.yml
+# Uses --rm to automatically clean up containers after each run
+#
+# To test against your own fork:
+# just act-lint-fork github.com/yourusername/wassette
+# just act-build-fork github.com/yourusername/wassette
 
+# Install act tool for running GitHub Actions locally
+act-install:
+    @echo "Installing act (GitHub Actions runner)..."
+    @echo "Note: This will prompt for your sudo password to install act system-wide."
+    curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+    @echo "Act installed successfully. You can now run CI tests locally with 'just act-lint', etc."
+
+act-license-headers:
+    act -W ./.github/workflows/rust.yml -j license-headers --rm
+
+act-lint:
+    act -W ./.github/workflows/rust.yml -j lint --rm
+
+act-build:
+    act -W ./.github/workflows/rust.yml -j build --rm
+
+act-deps:
+    act -W ./.github/workflows/rust.yml -j deps --rm
+
+act-security:
+    act -W ./.github/workflows/rust.yml -j security --rm
+
+act-coverage:
+    act -W ./.github/workflows/rust.yml -j coverage --rm
+
+act-spelling:
+    act -W ./.github/workflows/rust.yml -j spelling --rm
+
+act-linkChecker:
+    act -W ./.github/workflows/rust.yml -j linkChecker --rm
+
+# Run examples workflow
+act-examples:
+    act -W ./.github/workflows/examples.yml --rm
+
+# Run all rust workflow jobs
+act-rust-all:
+    act -W ./.github/workflows/rust.yml --rm
+
+# Run all workflows
+act-all:
+    act -W ./.github/workflows/rust.yml --rm
+    act -W ./.github/workflows/examples.yml --rm
+
+# Fork-specific commands for testing custom repositories
+act-license-headers-fork repo:
+    act -W ./.github/workflows/rust.yml -j license-headers --rm --env GITHUB_REPOSITORY={{repo}}
+
+act-lint-fork repo:
+    act -W ./.github/workflows/rust.yml -j lint --rm --env GITHUB_REPOSITORY={{repo}}
+
+act-build-fork repo:
+    act -W ./.github/workflows/rust.yml -j build --rm --env GITHUB_REPOSITORY={{repo}}
+
+act-deps-fork repo:
+    act -W ./.github/workflows/rust.yml -j deps --rm --env GITHUB_REPOSITORY={{repo}}
+
+act-security-fork repo:
+    act -W ./.github/workflows/rust.yml -j security --rm --env GITHUB_REPOSITORY={{repo}}
+
+act-coverage-fork repo:
+    act -W ./.github/workflows/rust.yml -j coverage --rm --env GITHUB_REPOSITORY={{repo}}
+
+act-spelling-fork repo:
+    act -W ./.github/workflows/rust.yml -j spelling --rm --env GITHUB_REPOSITORY={{repo}}
+
+act-linkChecker-fork repo:
+    act -W ./.github/workflows/rust.yml -j linkChecker --rm --env GITHUB_REPOSITORY={{repo}}
+
+# Run examples workflow against fork
+act-examples-fork repo:
+    act -W ./.github/workflows/examples.yml --rm --env GITHUB_REPOSITORY={{repo}}
+
+# Run all rust workflow jobs against fork
+act-rust-all-fork repo:
+    act -W ./.github/workflows/rust.yml --rm --env GITHUB_REPOSITORY={{repo}}
+
+# Run all workflows against fork
+act-all-fork repo:
+    act -W ./.github/workflows/rust.yml --rm --env GITHUB_REPOSITORY={{repo}}
+    act -W ./.github/workflows/examples.yml --rm --env GITHUB_REPOSITORY={{repo}}
+
+# Clean up any stuck act containers
+act-clean:
+    @echo "Current act containers:"
+    -docker ps --filter "name=act-"
+    @echo "Stopping and removing act containers..."
+    -docker stop $(docker ps -q --filter "name=act-") 2>/dev/null || true
+    -docker rm $(docker ps -aq --filter "name=act-") 2>/dev/null || true
+    @echo "Act containers cleaned up."
