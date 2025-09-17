@@ -380,6 +380,52 @@ You can join us via the `#wassette` channel on the [Microsoft Open Source Discor
 
 Please see [CONTRIBUTING.md][Contributing] for more information on how to contribute to this project.
 
+## Development
+
+### Local Development and Testing
+
+Wassette provides comprehensive development tools for local testing and CI parity. These tools ensure that your local development environment matches the GitHub CI environment exactly, preventing CI failures.
+
+#### Prerequisites
+- **Docker**: For running containerized CI environments
+- **Rust/Cargo**: For building and testing
+- **act**: For running GitHub Actions locally (can be installed via `just act-install`)
+
+#### Quick Setup
+```bash
+# Check prerequisites
+just dev-check
+
+# Set up development environment (one-time)
+just rust-setup
+
+# Install act for local CI testing (one-time)
+just act-install
+```
+
+#### Local CI Testing
+Run the exact same tests that GitHub CI runs:
+
+```bash
+# Run individual CI jobs
+just act-lint        # Linting checks
+just act-build       # Build and tests
+just act-security    # Security audits
+
+# Run all CI jobs
+just act-rust-all
+```
+
+#### Fork and Branch Testing
+Test against custom repositories or feature branches:
+
+```bash
+# Test against your fork
+just act-lint-fork github.com/yourusername/wassette
+```
+
+For complete development documentation, see [docs/development/developer-tests.md](docs/development/developer-tests.md).
+
 ## License
 
 This project is licensed under the <a href="LICENSE">MIT License</a>.
