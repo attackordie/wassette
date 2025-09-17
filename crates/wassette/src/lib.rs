@@ -210,7 +210,7 @@ impl LifecycleManager {
             .ok()
             .and_then(|s| s.parse().ok())
             .unwrap_or(DEFAULT_OCI_TIMEOUT_SECS);
-        
+
         let oci_client = oci_client::Client::new(oci_client::client::ClientConfig {
             read_timeout: Some(std::time::Duration::from_secs(oci_timeout)),
             ..Default::default()
@@ -221,7 +221,7 @@ impl LifecycleManager {
             .ok()
             .and_then(|s| s.parse().ok())
             .unwrap_or(DEFAULT_HTTP_TIMEOUT_SECS);
-            
+
         let http_client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(http_timeout))
             .build()
@@ -364,7 +364,7 @@ impl LifecycleManager {
             .ok()
             .and_then(|s| s.parse().ok())
             .unwrap_or(DEFAULT_OCI_TIMEOUT_SECS);
-        
+
         let oci_client = oci_client::Client::new(oci_client::client::ClientConfig {
             read_timeout: Some(std::time::Duration::from_secs(oci_timeout)),
             ..Default::default()
@@ -375,7 +375,7 @@ impl LifecycleManager {
             .ok()
             .and_then(|s| s.parse().ok())
             .unwrap_or(DEFAULT_HTTP_TIMEOUT_SECS);
-            
+
         let http_client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(http_timeout))
             .build()

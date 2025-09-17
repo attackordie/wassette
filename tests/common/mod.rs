@@ -14,8 +14,7 @@ fn ensure_fetch_component_built() -> Result<()> {
     FETCH_COMPONENT_BUILD.call_once(|| {
         let result = std::panic::catch_unwind(|| {
             let top_level = PathBuf::from(
-                std::env::var("CARGO_MANIFEST_DIR")
-                    .expect("CARGO_MANIFEST_DIR not set")
+                std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"),
             );
 
             // Use std::process::Command instead of tokio::process::Command to avoid runtime issues
@@ -64,8 +63,7 @@ fn ensure_filesystem_component_built() -> Result<()> {
     FILESYSTEM_COMPONENT_BUILD.call_once(|| {
         let result = std::panic::catch_unwind(|| {
             let top_level = PathBuf::from(
-                std::env::var("CARGO_MANIFEST_DIR")
-                    .expect("CARGO_MANIFEST_DIR not set")
+                std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"),
             );
 
             // Use std::process::Command instead of tokio::process::Command to avoid runtime issues

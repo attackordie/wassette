@@ -61,8 +61,8 @@ const WASM_MEDIA_TYPES: &[&str] = &[
 ];
 
 const POLICY_MEDIA_TYPES: &[&str] = &[
-    "application/vnd.wasm.policy.v1+yaml",      // CNCF standard (expected)
-    "application/vnd.wassette.policy+yaml",     // Legacy format (backward compatibility)
+    "application/vnd.wasm.policy.v1+yaml", // CNCF standard (expected)
+    "application/vnd.wassette.policy+yaml", // Legacy format (backward compatibility)
     "application/x-yaml",
     "text/yaml",
 ];
