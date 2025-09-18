@@ -121,9 +121,15 @@ rust-setup:
 # Install act tool for running GitHub Actions locally
 act-install:
     @echo "Installing act (GitHub Actions runner)..."
-    @echo "Note: This will prompt for your sudo password to install act system-wide."
-    curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
-    @echo "Act installed successfully. You can now run CI tests locally with 'just act-lint', etc."
+    @echo "Note: For security, the install script will be downloaded for your review before running with sudo."
+    tmpfile=$(mktemp /tmp/act-install.XXXXXX.sh) && \
+    curl -fsSL https://raw.githubusercontent.com/nektos/act/master/install.sh -o "$tmpfile" && \
+    echo "Downloaded install script to $tmpfile" && \
+    echo "SHA256 checksum:" && sha256sum "$tmpfile" && \
+    echo "Please review the script before running:" && \
+    echo "    less $tmpfile" && \
+    echo "To install, run:" && \
+    echo "    sudo bash $tmpfile"
 
 act-license-headers:
     act -W ./.github/workflows/rust.yml -j license-headers --rm
