@@ -75,6 +75,7 @@ dev-help:
     @echo ""
     @echo "📋 Setup:"
     @echo "  just dev-check       - Check development prerequisites"
+    @echo "  just dev-check-ci    - Check CI testing prerequisites (optional)"
     @echo "  just rust-setup      - Set up Rust development environment"
     @echo "  just act-install     - Install act tool for local CI"
     @echo ""
@@ -96,11 +97,16 @@ dev-help:
 # Check if development prerequisites are installed
 dev-check:
     @echo "🔍 Checking development prerequisites..."
-    @command -v act >/dev/null 2>&1 || (echo "❌ act not installed. Run: just act-install" && exit 1)
-    @command -v docker >/dev/null 2>&1 || (echo "❌ Docker not installed. Please install Docker: https://docs.docker.com/get-docker/" && exit 1)
     @command -v cargo >/dev/null 2>&1 || (echo "❌ Rust/Cargo not installed. Run: just rust-setup" && exit 1)
     @rustup target list --installed | grep -q wasm32-wasip2 || (echo "❌ wasm32-wasip2 target not installed. Run: rustup target add wasm32-wasip2" && exit 1)
     @echo "✅ All prerequisites are installed!"
+
+# Check if CI testing prerequisites are installed (optional)
+dev-check-ci:
+    @echo "🔍 Checking CI testing prerequisites..."
+    @command -v act >/dev/null 2>&1 || (echo "❌ act not installed. Run: just act-install" && exit 1)
+    @command -v docker >/dev/null 2>&1 || (echo "❌ Docker not installed. Please install Docker: https://docs.docker.com/get-docker/" && exit 1)
+    @echo "✅ CI testing prerequisites are installed!"
 
 # Set up Rust development environment
 rust-setup:
