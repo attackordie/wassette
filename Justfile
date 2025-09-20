@@ -105,9 +105,15 @@ dev-check:
 # Set up Rust development environment
 rust-setup:
     @echo "🦀 Setting up Rust development environment..."
-    rustup toolchain install nightly --component rustfmt
-    rustup target add wasm32-wasip2
-    cargo install cargo-machete cargo-audit cargo-deny typos-cli
+    @echo "Checking nightly toolchain..."
+    @rustup toolchain list | grep -q nightly || rustup toolchain install nightly --component rustfmt
+    @echo "Checking wasm32-wasip2 target..."
+    @rustup target list --installed | grep -q wasm32-wasip2 || rustup target add wasm32-wasip2
+    @echo "Checking cargo tools..."
+    @command -v cargo-machete >/dev/null 2>&1 || cargo install cargo-machete
+    @command -v cargo-audit >/dev/null 2>&1 || cargo install cargo-audit
+    @command -v cargo-deny >/dev/null 2>&1 || cargo install cargo-deny
+    @command -v typos >/dev/null 2>&1 || cargo install typos-cli
     @echo "✅ Rust development environment ready!"
 
 # Act commands - run GitHub CI locally using act (github.com/nektos/act)
